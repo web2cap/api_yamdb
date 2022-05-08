@@ -16,7 +16,7 @@ class CreatedModel(models.Model):
 
 
 class Genre(models.Model):
-    """Model Genre for Titles."""
+    """Model Genre for Title."""
     name = models.CharField(
         verbose_name='Жанр',
         help_text='Наименование жанра произведения',
@@ -41,7 +41,7 @@ class Genre(models.Model):
 
 
 class Category(models.Model):
-    """Model Category for Titles."""
+    """Model Category for Title."""
     name = models.CharField(
         verbose_name='Категория',
         help_text='Наименование категории произведения',
@@ -65,8 +65,8 @@ class Category(models.Model):
         return self.slug
 
 
-class Titles(models.Model):
-    """Model Titles."""
+class Title(models.Model):
+    """Model Title."""
     name = models.CharField(
         verbose_name='Произведение',
         help_text='Наименование произведения',
@@ -113,10 +113,10 @@ class Titles(models.Model):
 
 
 class Review(CreatedModel):
-    """Model Review for Titles."""
+    """Model Review for Title."""
     SCORE_CHOICES = ((s, s) for s in range(1, 11))
     title = models.ForeignKey(
-        Titles,
+        Title,
         verbose_name='Произведение',
         help_text='Наименование произведения, для которого отзыв',
         related_name='reviews',
@@ -148,7 +148,7 @@ class Review(CreatedModel):
         return self.text[:30]
 
 
-class Comments(CreatedModel):
+class Comment(CreatedModel):
     """Model Comments for Review."""
     review = models.ForeignKey(
         Review,
