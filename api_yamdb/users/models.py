@@ -33,7 +33,7 @@ class User(AbstractUser):
         default=None,
     )
     confirmation_code = models.CharField(
-        "Код подтверждения", max_length=64, default=get_secret_key()
+        "Код подтверждения", max_length=64, default=get_secret_key
     )
 
     def __str__(self):
