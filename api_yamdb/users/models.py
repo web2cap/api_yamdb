@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.management.utils import get_random_secret_key
 from django.db import models
 
 
@@ -8,6 +9,10 @@ class User(AbstractUser):
         ("moderator", "Модератор"),
         ("admin", "Администратор"),
     )
+
+    def get_secret_key():
+        return get_random_secret_key()
+
     email = models.EmailField(
         "Электронная почта",
         blank=False,
@@ -26,6 +31,9 @@ class User(AbstractUser):
         blank=True,
         null=True,
         default=None,
+    )
+    confirmation_code = models.CharField(
+        "Код подтверждения", max_length=64, default=get_secret_key()
     )
 
     def __str__(self):
