@@ -23,6 +23,7 @@ class User(AbstractUser):
         blank=False,
         null=False,
         max_length=254,
+        unique=True,
     )
     role = models.CharField(
         "Роль",
