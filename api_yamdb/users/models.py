@@ -10,7 +10,7 @@ class User(AbstractUser):
         ("admin", "Администратор"),
     )
 
-    def get_sekret_key():
+    def get_secret_key():
         return get_random_secret_key()
 
     email = models.EmailField(
@@ -33,7 +33,7 @@ class User(AbstractUser):
         default=None,
     )
     confirmation_code = models.CharField(
-        "Код подтверждения", max_length=64, default=get_sekret_key()
+        "Код подтверждения", max_length=64, default=get_secret_key()
     )
 
     def __str__(self):
