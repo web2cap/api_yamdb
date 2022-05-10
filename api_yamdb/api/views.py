@@ -8,7 +8,7 @@ from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
 
 
-from .permissions import PostOnlyNoCreate
+from .permissions import PostOnlyNoCreate, RoleAdminrOrReadOnly
 from reviews.models import Title
 from .filters import TitlesFilter
 
@@ -45,12 +45,13 @@ class AuthViewSet(viewsets.ModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all().annotate(
-        Avg("reviews__score")
-    ).order_by("name")
+    queryset = (
+        Title.objects.all().annotate(Avg("reviews__score")).order_by("name")
+    )
     serializer_class = TitleSerializer
-    permission_classes = (PostOnlyNoCreate,)
-    http_method_names = ['get', 'pos', 'head', 'patch']
+    # создал класс на основе требований
+    permission_classes = (RoleAdminrOrReadOnly,)
+    http_method_names = ["get", "pos", "head", "patch"]
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitlesFilter
 
