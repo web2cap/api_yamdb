@@ -14,5 +14,3 @@ class UserSerializer(serializers.ModelSerializer):
             "role",
             "bio",
         )
-        # lookup_field = "username"
-        # extra_kwargs = {"url": {"lookup_field": "username"}}
