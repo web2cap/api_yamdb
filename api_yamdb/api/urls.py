@@ -9,8 +9,8 @@ from .views import (
 app_name = "api"
 
 router = routers.DefaultRouter()
-router.register(r"auth", AuthViewSet, basename="auth")
-router.register(r"users", UserViewSet, basename="users")
+router.register("auth", AuthViewSet, basename="auth")
+router.register("users", UserViewSet, basename="users")
 
 urlpatterns = [
     path("v1/", include(router.urls)),

@@ -13,6 +13,9 @@ from .serializers import UserSerializer
 
 
 class AuthViewSet(viewsets.ModelViewSet):
+    """Получение токена авторизации JWT в ответ на POST запрос, на адрес /token.
+    POST на корневой эндпоитн и другие типы запросов запрешены пермищенном."""
+
     permission_classes = (PostOnlyNoCreate,)
 
     @action(detail=False, methods=["post"])
@@ -41,6 +44,10 @@ class AuthViewSet(viewsets.ModelViewSet):
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    """ViewSet API управления пользователями.
+    Запросы к экземпляру осуществляются по username.
+    При обращении на /me/ пользователь дополняет/получает свою запись."""
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (MeOrAdmin,)
@@ -50,10 +57,9 @@ class UserViewSet(viewsets.ModelViewSet):
         """Получение экземпляра пользователя по username.
         При запросе на /me/ возвращает авторизованного пользователя."""
 
-        queryset = User.objects.all()
         if username == "me":
             username = request.user.username
-        user = get_object_or_404(queryset, username=username)
+        user = get_object_or_404(self.queryset, username=username)
         serializer = UserSerializer(user)
         return Response(serializer.data)
 

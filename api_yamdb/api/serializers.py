@@ -4,6 +4,8 @@ from users.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
+    "Сериалайзер для Users."
+
     class Meta:
         model = User
         fields = (
@@ -14,3 +16,4 @@ class UserSerializer(serializers.ModelSerializer):
             "role",
             "bio",
         )
+        lookup_field = "username"
