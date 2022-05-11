@@ -21,6 +21,7 @@ class User(AbstractUser):
         blank=False,
         null=False,
         max_length=254,
+        unique=True,
     )
     role = models.CharField(
         "Роль",
@@ -55,6 +56,11 @@ class User(AbstractUser):
         if self.role == self.ADMIN:
             self.is_staff = True
         super(User, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Пользователь"
+        verbose_name_plural = "Пользователи"
+        ordering = ["role", "username"]
 
     def __str__(self):
         return self.username
