@@ -1,3 +1,5 @@
+import email
+from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -51,15 +53,44 @@ class AuthViewSet(viewsets.ModelViewSet):
     def signup(self, request):
         """Самостоятельная регистрация нового пользователя.
         Создает пользователя по запросу.
-        Отправляет код подверждения пользователю на email."""
+        Отправляет код подверждения пользователю на email.
+        Отправляет код подверждения на email существующим пользователям."""
 
         serializer = UserSignupSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+        else:
+            if "username" in serializer.data:
+                user = User.objects.filter(
+                    username=serializer.data["username"],
+                    email=serializer.data["email"],
+                )
+                if user.exists():
+                    self.send_mail_code(serializer.data)
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
+        self.send_mail_code(serializer.data)
         headers = self.get_success_headers(serializer.data)
         return Response(
             serializer.data, status=status.HTTP_200_OK, headers=headers
         )
+
+    def send_mail_code(self, data):
+        """Функция отправки кода подтверждения."""
+
+        user = get_object_or_404(User, username=data["username"])
+        mail_text = "Добро пожаловать!\n"
+        mail_text += f"Ваш код подтверждения YAMDB {user.confirmation_code}"
+        mail_text += "\n\nКоманда YAMDB."
+        result = send_mail(
+            "YAMDB Ваш код подтверждения",
+            mail_text,
+            "noreplay@yamdb.team3",
+            [data["email"]],
+            fail_silently=False,
+        )
+        return result
 
 
 class UserViewSet(viewsets.ModelViewSet):
