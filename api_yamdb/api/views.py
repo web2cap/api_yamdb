@@ -131,7 +131,8 @@ class TitleViewSet(viewsets.ModelViewSet):
     )
     # создал класс на основе требований
     permission_classes = (RoleAdminrOrReadOnly,)
-    http_method_names = ["get", 'delete', "patch"]
+    
+    #http_method_names = ["get", 'delete', "patch"]
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitlesFilter
 
