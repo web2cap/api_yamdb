@@ -1,5 +1,3 @@
-from curses.ascii import US
-import re
 from django.contrib.auth.models import AbstractUser
 from django.core.management.utils import get_random_secret_key
 from django.db import models
