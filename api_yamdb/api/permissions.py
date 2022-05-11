@@ -5,7 +5,8 @@ class PostOnlyNoCreate(permissions.BasePermission):
     """Разрешает только метод POST. Запрещает действие метода POST create."""
 
     def has_permission(self, request, view):
-        return request.method == "POST" and view.action != "create"
+        accept_methods = ("token", "signup")
+        return request.method == "POST" and view.action in accept_methods
 
 
 class IsRoleAdmin(permissions.BasePermission):

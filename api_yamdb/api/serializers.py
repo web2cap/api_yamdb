@@ -17,3 +17,16 @@ class UserSerializer(serializers.ModelSerializer):
             "bio",
         )
         lookup_field = "username"
+
+
+class UserSignupSerializer(serializers.ModelSerializer):
+    "Сериалайзер для самостоятельной регистрации пользователей."
+
+    def validate_username(self, value):
+        if value == "me":
+            raise serializers.ValidationError("Такой username недопустим.")
+        return value
+
+    class Meta:
+        model = User
+        fields = ("username", "email")
