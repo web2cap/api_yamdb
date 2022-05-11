@@ -2,28 +2,22 @@
 from rest_framework import serializers
 from reviews.models import Category, Genre, Title
 
-
 class CategorySerializer(serializers.ModelSerializer):
-    """Сериалайзер для модели Category"""
+    """Сериалайзер категорий"""
+
     class Meta:
-        model = Category
         exclude = ('id',)
+        model = Category
         lookup_field = 'slug'
-        extra_kwargs = {
-            'url': {'lookup_field': 'slug'}
-        }
 
 
 class GenreSerializer(serializers.ModelSerializer):
-    """Сериалайзер для модели Genre"""
+    """Сериалайзер жанров"""
+
     class Meta:
-        model = Genre
-        fields = ('name: string', 'slug: string')
         exclude = ('id',)
+        model = Genre
         lookup_field = 'slug'
-        extra_kwargs = {
-            'url': {'lookup_field': 'slug'}
-        }
 
 
 class TitleSerializer(serializers.ModelSerializer):

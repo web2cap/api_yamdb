@@ -15,3 +15,4 @@ class RoleAdminrOrReadOnly(permissions.BasePermission):
         else:
             is_role_adm = request.user.is_admin or request.user.is_superuser
         return request.method in permissions.SAFE_METHODS or is_role_adm
+
