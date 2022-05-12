@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
+from .messages import MESSAGES
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
@@ -23,10 +24,9 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserSignupSerializer(serializers.ModelSerializer):
     "Сериалайзер для самостоятельной регистрации пользователей."
-
     def validate_username(self, value):
         if value == "me":
-            raise serializers.ValidationError("Такой username недопустим.")
+            raise serializers.ValidationError(MESSAGES["username_invalid"])
         return value
 
     class Meta:
@@ -36,17 +36,15 @@ class UserSignupSerializer(serializers.ModelSerializer):
 
 class UserConfirmCodeSerializer(serializers.Serializer):
     "Сериалайзер для проверки username с кодом подтверждения."
-
     username = serializers.CharField(max_length=150, required=True)
     confirmation_code = serializers.CharField(max_length=64, required=True)
 
     def validate(self, data):
         """Проверка соответстствия кода логину."""
-
         user = get_object_or_404(User, username=data["username"])
         if user.confirmation_code == data["confirmation_code"]:
             return data
-        raise serializers.ValidationError("Неправильный username или код.")
+        raise serializers.ValidationError(MESSAGES["username_or_code_invalid"])
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -112,8 +110,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     @staticmethod
     def check_only_one_review(review):
         if review:
-            raise serializers.ValidationError('You have already written a '
-                                              'review for this title')
+            raise serializers.ValidationError(MESSAGES["duplication_review"])
 
 
 class CommentSerializer(serializers.ModelSerializer):
