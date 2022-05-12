@@ -60,6 +60,10 @@ class AuthViewSet(viewsets.ModelViewSet):
                 ).exists()
             ):
                 self.send_mail_code(serializer.data)
+                return Response(
+                    {"detail": "Письмо с кодом подтверждения отправленно"},
+                    status=status.HTTP_200_OK,
+                )
             return Response(
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST
             )
