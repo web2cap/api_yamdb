@@ -1,11 +1,11 @@
 from rest_framework import serializers
-from reviews.models import Category, Genre, Title
+from rest_framework.relations import SlugRelatedField
+from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
-    "Сериалайзер для Users."
-
+    """Сериалайзер для Users."""
     class Meta:
         model = User
         fields = (
@@ -62,3 +62,29 @@ class ReadOnlyTitleSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
         )
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    """Serializer for model Review."""
+    author = SlugRelatedField(slug_field='username', read_only=True)
+
+    class Meta:
+        exclude = ('title',)
+        model = Review
+        read_only_fields = ('id', 'title', 'pub_date')
+
+    @staticmethod
+    def check_only_one_review(review):
+        if review:
+            raise serializers.ValidationError('You have already written a '
+                                              'review for this title')
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    """Serializer for model Comment."""
+    author = SlugRelatedField(slug_field='username', read_only=True)
+
+    class Meta:
+        exclude = ('review',)
+        model = Comment
+        read_only_fields = ('id', 'review', 'pub_date')

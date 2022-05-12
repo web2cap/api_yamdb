@@ -143,6 +143,7 @@ class Review(CreatedModel):
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         ordering = ['-pub_date']
+        unique_together = ['author', 'title']
 
     def __str__(self):
         return self.text[:30]
