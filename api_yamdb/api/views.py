@@ -1,4 +1,3 @@
-import email
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
@@ -11,7 +10,11 @@ from .permissions import (
     MeOrAdmin,
     PostOnlyNoCreate,
 )
-from .serializers import UserSerializer, UserSignupSerializer
+from .serializers import (
+    UserSerializer,
+    UserSignupSerializer,
+    UserConfirmCodeSerializer,
+)
 
 
 class AuthViewSet(viewsets.ModelViewSet):
@@ -20,34 +23,22 @@ class AuthViewSet(viewsets.ModelViewSet):
     POST на корневой эндпоитн и другие типы запросов запрешены пермищенном.
     """
 
-    # serializer_class = UserSignupSerializer
     permission_classes = (PostOnlyNoCreate,)
 
     @action(detail=False, methods=["post"])
     def token(self, request):
         """Получение токена по username и confirmation_code."""
 
-        if "username" not in request.data:
-            return Response(
-                {"detail": "No username in request"},
-                status=status.HTTP_400_BAD_REQUEST,
+        serializer = UserConfirmCodeSerializer(data=request.data)
+        if serializer.is_valid():
+            user = get_object_or_404(
+                User, username=serializer.data["username"]
             )
-        if "confirmation_code" not in request.data:
+            access_token = str(AccessToken.for_user(user))
             return Response(
-                {"detail": "No confirmation_code in request"},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"access": access_token}, status=status.HTTP_200_OK
             )
-        user = get_object_or_404(
-            User,
-            username=request.data["username"],
-        )
-        if user.confirmation_code != request.data["confirmation_code"]:
-            return Response(
-                {"detail": "Wrong confirmation_code"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        access_token = str(AccessToken.for_user(user))
-        return Response({"access": access_token})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=["post"])
     def signup(self, request):
