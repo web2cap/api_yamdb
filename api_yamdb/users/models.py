@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 from django.contrib.auth.models import AbstractUser, Permission
-=======
-from django.contrib.auth.models import AbstractUser
->>>>>>> master
 from django.core.management.utils import get_random_secret_key
 from django.db import models
 
