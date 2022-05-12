@@ -11,7 +11,6 @@ from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
 from .filters import TitlesFilter
-from .messages import MESSAGES
 from .mixins import ListCreateDestroyViewSet
 from .serializers import (
     CategorySerializer,
@@ -32,6 +31,7 @@ from .permissions import (
 )
 
 EMAIL_NOREPLAY_ADDRESS = getattr(settings, "EMAIL_NOREPLAY_ADDRESS", None)
+MESSAGES = getattr(settings, "MESSAGES", None)
 
 
 class AuthViewSet(viewsets.ModelViewSet):
