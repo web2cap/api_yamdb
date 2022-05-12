@@ -1,8 +1,7 @@
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
-MESSAGES = getattr(settings, "MESSAGES", None)
+from api.messages import MESSAGES
 
 
 def validator_year(year):
