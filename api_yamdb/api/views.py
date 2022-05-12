@@ -7,11 +7,11 @@ from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
+from api_yamdb.api_yamdb.settings import MESSAGES
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
 from .filters import TitlesFilter
-from .messages import MESSAGES
 from .mixins import ListCreateDestroyViewSet
 from .serializers import (
     CategorySerializer,
@@ -32,6 +32,7 @@ from .permissions import (
 )
 
 EMAIL_NOREPLAY_ADDRESS = getattr(settings, "EMAIL_NOREPLAY_ADDRESS", None)
+MESSAGES = getattr(settings, "MESSAGES", None)
 
 
 class AuthViewSet(viewsets.ModelViewSet):
