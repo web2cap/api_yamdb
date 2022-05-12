@@ -7,7 +7,7 @@ from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from api_yamdb.api_yamdb.settings import MESSAGES
+
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
