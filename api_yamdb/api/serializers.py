@@ -9,6 +9,7 @@ from users.models import User
 
 class UserSerializer(serializers.ModelSerializer):
     """Сериалайзер для Users."""
+
     class Meta:
         model = User
         fields = (
@@ -24,6 +25,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserSignupSerializer(serializers.ModelSerializer):
     "Сериалайзер для самостоятельной регистрации пользователей."
+
     def validate_username(self, value):
         if value == "me":
             raise serializers.ValidationError(MESSAGES["username_invalid"])
@@ -49,38 +51,42 @@ class UserConfirmCodeSerializer(serializers.Serializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Category."""
+
     class Meta:
         model = Category
-        exclude = ('id',)
-        lookup_field = 'slug'
+        exclude = ("id",)
+        lookup_field = "slug"
 
 
 class GenreSerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Genre."""
+
     class Meta:
         model = Genre
-        fields = ('name', 'slug')
-        lookup_field = 'slug'
+        fields = ("name", "slug")
+        lookup_field = "slug"
 
 
 class TitleSerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Title."""
+
     genre = serializers.SlugRelatedField(
-        slug_field='slug', many=True, queryset=Genre.objects.all()
+        slug_field="slug", many=True, queryset=Genre.objects.all()
     )
     category = serializers.SlugRelatedField(
-        slug_field='slug', queryset=Category.objects.all()
+        slug_field="slug", queryset=Category.objects.all()
     )
 
     class Meta:
         model = Title
-        fields = '__all__'
+        fields = "__all__"
 
 
 class ReadOnlyTitleSerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Title при действии 'retrieve', 'list.'"""
+
     rating = serializers.IntegerField(
-        source='reviews__score__avg', read_only=True
+        source="reviews__score__avg", read_only=True
     )
     genre = GenreSerializer(many=True)
     category = CategorySerializer()
@@ -100,12 +106,13 @@ class ReadOnlyTitleSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     """Serializer for model Review."""
-    author = SlugRelatedField(slug_field='username', read_only=True)
+
+    author = SlugRelatedField(slug_field="username", read_only=True)
 
     class Meta:
-        exclude = ('title',)
+        exclude = ("title",)
         model = Review
-        read_only_fields = ('id', 'title', 'pub_date')
+        read_only_fields = ("id", "title", "pub_date")
 
     @staticmethod
     def check_only_one_review(review):
@@ -115,9 +122,10 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     """Serializer for model Comment."""
-    author = SlugRelatedField(slug_field='username', read_only=True)
+
+    author = SlugRelatedField(slug_field="username", read_only=True)
 
     class Meta:
-        exclude = ('review',)
+        exclude = ("review",)
         model = Comment
-        read_only_fields = ('id', 'review', 'pub_date')
+        read_only_fields = ("id", "review", "pub_date")
