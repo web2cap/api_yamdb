@@ -1,5 +1,6 @@
 from django.db import models
 
+from .validators import validator_year
 from users.models import User
 
 
@@ -75,6 +76,7 @@ class Title(models.Model):
     year = models.IntegerField(
         verbose_name='Год',
         help_text='Год создания произведения',
+        validators=(validator_year,),
     )
     rating = models.IntegerField(
         verbose_name='Рейтинг произведения',
