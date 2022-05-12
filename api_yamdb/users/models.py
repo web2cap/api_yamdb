@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 from django.contrib.auth.models import AbstractUser, Permission
+=======
+from django.contrib.auth.models import AbstractUser
+>>>>>>> master
 from django.core.management.utils import get_random_secret_key
 from django.db import models
 
@@ -21,6 +25,7 @@ class User(AbstractUser):
         blank=False,
         null=False,
         max_length=254,
+        unique=True,
     )
     role = models.CharField(
         "Роль",
@@ -59,6 +64,11 @@ class User(AbstractUser):
             save_user = User.objects.get(username=self.username)
             permission = Permission.objects.get(codename="add_user")
             save_user.user_permissions.add(permission)
+
+    class Meta:
+        verbose_name = "Пользователь"
+        verbose_name_plural = "Пользователи"
+        ordering = ["role", "username"]
 
     def __str__(self):
         return self.username
