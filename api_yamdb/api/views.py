@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
@@ -27,8 +28,10 @@ from .permissions import (
     AuthorAdminModeratorOrReadOnly,
     MeOrAdmin,
     PostOnlyNoCreate,
-    RoleAdminrOrReadOnly
+    RoleAdminrOrReadOnly,
 )
+
+EMAIL_NOREPLAY_ADDRESS = getattr(settings, "EMAIL_NOREPLAY_ADDRESS", None)
 
 
 class AuthViewSet(viewsets.ModelViewSet):
@@ -92,7 +95,7 @@ class AuthViewSet(viewsets.ModelViewSet):
         result = send_mail(
             MESSAGES["mail_theme"],
             MESSAGES["mail_text"].format(user.confirmation_code),
-            "noreplay@yamdb.team3",
+            EMAIL_NOREPLAY_ADDRESS,
             [data["email"]],
             fail_silently=False,
         )
@@ -154,6 +157,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class CategoryViewSet(ListCreateDestroyViewSet):
     """API для работы с моделью категорий."""
+
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (RoleAdminrOrReadOnly,)
@@ -164,6 +168,7 @@ class CategoryViewSet(ListCreateDestroyViewSet):
 
 class GenreViewSet(ListCreateDestroyViewSet):
     """API для работы с моделью жанров."""
+
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = (RoleAdminrOrReadOnly,)
@@ -174,13 +179,14 @@ class GenreViewSet(ListCreateDestroyViewSet):
 
 class TitleViewSet(viewsets.ModelViewSet):
     """API для работы произведений."""
+
     queryset = (
         Title.objects.all().annotate(Avg("reviews__score")).order_by("name")
     )
     permission_classes = (RoleAdminrOrReadOnly,)
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitlesFilter
-    http_method_names = ['get', 'post', 'delete', 'patch']
+    http_method_names = ["get", "post", "delete", "patch"]
 
     def get_serializer_class(self):
         if self.action in ("retrieve", "list"):
@@ -190,54 +196,60 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     """Class api for model Review."""
+
     serializer_class = ReviewSerializer
     permission_classes = [AuthorAdminModeratorOrReadOnly]
-    http_method_names = ['get', 'post', 'delete', 'patch']
+    http_method_names = ["get", "post", "delete", "patch"]
 
     def get_queryset(self):
-        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
         return title.reviews.all()
 
     def perform_create(self, serializer):
-        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
         review = Review.objects.filter(author=self.request.user, title=title)
         serializer.check_only_one_review(review)
         serializer.save(author=self.request.user, title=title)
 
-        title.rating = title.reviews.all().aggregate(Avg('score'))[
-            'score__avg']
+        title.rating = title.reviews.all().aggregate(Avg("score"))[
+            "score__avg"
+        ]
         title.save()
 
     def perform_update(self, serializer):
-        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
         serializer.save()
 
-        title.rating = title.reviews.all().aggregate(Avg('score'))[
-            'score__avg']
+        title.rating = title.reviews.all().aggregate(Avg("score"))[
+            "score__avg"
+        ]
         title.save()
 
     def perform_destroy(self, instance):
-        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
         instance.delete()
 
-        title.rating = title.reviews.all().aggregate(Avg('score'))[
-            'score__avg']
+        title.rating = title.reviews.all().aggregate(Avg("score"))[
+            "score__avg"
+        ]
         title.save()
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     """Class api for model Comment."""
+
     serializer_class = CommentSerializer
     permission_classes = [AuthorAdminModeratorOrReadOnly]
-    http_method_names = ['get', 'post', 'delete', 'patch']
+    http_method_names = ["get", "post", "delete", "patch"]
 
     def get_queryset(self):
-        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
-        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'),
-                                   title=title)
+        title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
+        review = get_object_or_404(
+            Review, pk=self.kwargs.get("review_id"), title=title
+        )
         return review.comments.all()
 
     def perform_create(self, serializer):
-        get_object_or_404(Title, pk=self.kwargs.get('title_id'))
-        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        get_object_or_404(Title, pk=self.kwargs.get("title_id"))
+        review = get_object_or_404(Review, pk=self.kwargs.get("review_id"))
         serializer.save(author=self.request.user, review=review)
