@@ -12,9 +12,9 @@ from .permissions import (
     PostOnlyNoCreate,
 )
 from .serializers import (
+    UserConfirmCodeSerializer,
     UserSerializer,
     UserSignupSerializer,
-    UserConfirmCodeSerializer,
 )
 
 
@@ -52,13 +52,14 @@ class AuthViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             self.perform_create(serializer)
         else:
-            if "username" in serializer.data:
-                user = User.objects.filter(
+            if (
+                "username" in serializer.data
+                and User.objects.filter(
                     username=serializer.data["username"],
                     email=serializer.data["email"],
-                )
-                if user.exists():
-                    self.send_mail_code(serializer.data)
+                ).exists()
+            ):
+                self.send_mail_code(serializer.data)
             return Response(
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST
             )
