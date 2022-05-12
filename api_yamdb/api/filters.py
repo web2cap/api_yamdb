@@ -1,10 +1,9 @@
 from django_filters import rest_framework as filters
-
 from reviews.models import Title
 
 
 class TitlesFilter(filters.FilterSet):
-    """Фильтр для вьюсета TitleViewSet"""
+    """Фильтр для вьюсета TitleViewSet."""
     name = filters.CharFilter(
         field_name='name',
         lookup_expr='icontains'

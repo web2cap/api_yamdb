@@ -1,28 +1,27 @@
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework import status, viewsets, filters
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from users.models import User
-from django.db.models import Avg
-from django_filters.rest_framework import DjangoFilterBackend
+from reviews.models import Category, Genre, Title, User
 
+from .filters import TitlesFilter
+from .mixins import ListCreateDestroyViewSet
+from .serializers import (
+    CategorySerializer,
+    GenreSerializer,
+    ReadOnlyTitleSerializer,
+    TitleSerializer,
+    UserSerializer
+)
 from .permissions import (
     MeOrAdmin,
     PostOnlyNoCreate,
     RoleAdminrOrReadOnly
 )
-from reviews.models import Category, Genre, Title 
-from .serializers import UserSerializer
-from .filters import TitlesFilter
-from .mixins import ListCreateDestroyViewSet
-from .serializers import (
-     TitleSerializer, 
-     ReadOnlyTitleSerializer,
-     GenreSerializer, 
-     CategorySerializer,
-     UserSerializer 
-)
+
 
 class AuthViewSet(viewsets.ModelViewSet):
     """Получение токена авторизации JWT в ответ на POST запрос, на адрес /token.
@@ -107,7 +106,9 @@ class UserViewSet(viewsets.ModelViewSet):
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 class CategoryViewSet(ListCreateDestroyViewSet):
+    """API для работы с моделью категорий."""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (RoleAdminrOrReadOnly,)
@@ -117,6 +118,7 @@ class CategoryViewSet(ListCreateDestroyViewSet):
 
 
 class GenreViewSet(ListCreateDestroyViewSet):
+    """API для работы с моделью жанров."""
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = (RoleAdminrOrReadOnly,)
@@ -126,13 +128,11 @@ class GenreViewSet(ListCreateDestroyViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
+    """API для работы произведений."""
     queryset = (
         Title.objects.all().annotate(Avg("reviews__score")).order_by("name")
     )
-    # создал класс на основе требований
     permission_classes = (RoleAdminrOrReadOnly,)
-    
-    #http_method_names = ["get", 'delete', "patch"]
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitlesFilter
 

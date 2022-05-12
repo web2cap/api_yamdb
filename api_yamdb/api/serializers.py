@@ -1,7 +1,7 @@
 from rest_framework import serializers
-
+from reviews.models import Category, Genre, Title
 from users.models import User
-from reviews.models import Category, Genre, Title 
+
 
 class UserSerializer(serializers.ModelSerializer):
     "Сериалайзер для Users."
@@ -18,30 +18,25 @@ class UserSerializer(serializers.ModelSerializer):
         )
         lookup_field = "username"
 
+
 class CategorySerializer(serializers.ModelSerializer):
-    """Сериалайзер для модели Category"""
+    """Сериалайзер для модели Category."""
     class Meta:
         model = Category
         exclude = ('id',)
         lookup_field = 'slug'
-        extra_kwargs = {
-            'url': {'lookup_field': 'slug'}
-        }
 
 
 class GenreSerializer(serializers.ModelSerializer):
-    """Сериалайзер для модели Genre"""
+    """Сериалайзер для модели Genre."""
     class Meta:
         model = Genre
         fields = ('name', 'slug')
         lookup_field = 'slug'
-        extra_kwargs = {
-            'url': {'lookup_field': 'slug'}
-        }
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    """Сериалайзер для модели Title"""
+    """Сериалайзер для модели Title."""
     genre = serializers.SlugRelatedField(
         slug_field='slug', many=True, queryset=Genre.objects.all()
     )
@@ -55,7 +50,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class ReadOnlyTitleSerializer(serializers.ModelSerializer):
-    """Сериалайзер для модели Title при действии 'retrieve', 'list'"""
+    """Сериалайзер для модели Title при действии 'retrieve', 'list.'"""
     rating = serializers.IntegerField(
         source='reviews__score__avg', read_only=True
     )
