@@ -1,3 +1,4 @@
+from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -17,7 +18,9 @@ from .serializers import (
     ReadOnlyTitleSerializer,
     ReviewSerializer,
     TitleSerializer,
-    UserSerializer
+    UserConfirmCodeSerializer,
+    UserSerializer,
+    UserSignupSerializer,
 )
 from .permissions import (
     AuthorAdminModeratorOrReadOnly,
@@ -36,27 +39,66 @@ class AuthViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"])
     def token(self, request):
-        if "username" not in request.data:
-            return Response(
-                {"detail": "No username in request"},
-                status=status.HTTP_400_BAD_REQUEST,
+        """Получение токена по username и confirmation_code."""
+
+        serializer = UserConfirmCodeSerializer(data=request.data)
+        if serializer.is_valid():
+            user = get_object_or_404(
+                User, username=serializer.data["username"]
             )
-        if "confirmation_code" not in request.data:
+            access_token = str(AccessToken.for_user(user))
             return Response(
-                {"detail": "No confirmation_code in request"},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"access": access_token}, status=status.HTTP_200_OK
             )
-        user = get_object_or_404(
-            User,
-            username=request.data["username"],
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=["post"])
+    def signup(self, request):
+        """Самостоятельная регистрация нового пользователя.
+        Создает пользователя по запросу.
+        Отправляет код подверждения пользователю на email.
+        Отправляет код подверждения на email существующим пользователям."""
+
+        serializer = UserSignupSerializer(data=request.data)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+        else:
+            if (
+                "username" in serializer.data
+                and User.objects.filter(
+                    username=serializer.data["username"],
+                    email=serializer.data["email"],
+                ).exists()
+            ):
+                self.send_mail_code(serializer.data)
+                return Response(
+                    {"detail": "Письмо с кодом подтверждения отправленно"},
+                    status=status.HTTP_200_OK,
+                )
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
+        self.send_mail_code(serializer.data)
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data, status=status.HTTP_200_OK, headers=headers
         )
-        if user.confirmation_code != request.data["confirmation_code"]:
-            return Response(
-                {"detail": "Wrong confirmation_code"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        access_token = str(AccessToken.for_user(user))
-        return Response({"access": access_token})
+
+    def send_mail_code(self, data):
+        """Функция отправки кода подтверждения."""
+
+        user = get_object_or_404(User, username=data["username"])
+        mail_text = "Добро пожаловать!\n"
+        mail_text += f"Ваш код подтверждения YAMDB {user.confirmation_code}"
+        mail_text += "\n\nКоманда YAMDB."
+        result = send_mail(
+            "YAMDB Ваш код подтверждения",
+            mail_text,
+            "noreplay@yamdb.team3",
+            [data["email"]],
+            fail_silently=False,
+        )
+        return result
 
 
 class UserViewSet(viewsets.ModelViewSet):
