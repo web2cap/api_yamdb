@@ -11,6 +11,7 @@ from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
 from .filters import TitlesFilter
+from .messages import MESSAGES
 from .mixins import ListCreateDestroyViewSet
 from .serializers import (
     CategorySerializer,
@@ -75,7 +76,7 @@ class AuthViewSet(viewsets.ModelViewSet):
             ):
                 self.send_mail_code(serializer.data)
                 return Response(
-                    {"detail": "Письмо с кодом подтверждения отправленно"},
+                    {"detail": MESSAGES["mail_send"]},
                     status=status.HTTP_200_OK,
                 )
             return Response(
@@ -91,12 +92,9 @@ class AuthViewSet(viewsets.ModelViewSet):
         """Функция отправки кода подтверждения."""
 
         user = get_object_or_404(User, username=data["username"])
-        mail_text = "Добро пожаловать!\n"
-        mail_text += f"Ваш код подтверждения YAMDB {user.confirmation_code}"
-        mail_text += "\n\nКоманда YAMDB."
         result = send_mail(
-            "YAMDB Ваш код подтверждения",
-            mail_text,
+            MESSAGES["mail_theme"],
+            MESSAGES["mail_text"].format(user.confirmation_code),
             EMAIL_NOREPLAY_ADDRESS,
             [data["email"]],
             fail_silently=False,
@@ -133,7 +131,7 @@ class UserViewSet(viewsets.ModelViewSet):
         if "role" in data:
             if data["role"] not in ("user", "admin", "moderator"):
                 return Response(
-                    {"detail": "Wrong role"},
+                    {"detail": MESSAGES["wrong_role"]},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             if not request.user.is_admin:
@@ -149,7 +147,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
         if username == "me":
             return Response(
-                {"detail": "You can't delete yourself"},
+                {"detail": MESSAGES["no_delete_yourself"]},
                 status=status.HTTP_405_METHOD_NOT_ALLOWED,
             )
         instance = self.get_object()

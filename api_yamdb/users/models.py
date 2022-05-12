@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Permission
 from django.core.management.utils import get_random_secret_key
 from django.db import models
 
@@ -56,6 +56,10 @@ class User(AbstractUser):
         if self.role == self.ADMIN:
             self.is_staff = True
         super(User, self).save(*args, **kwargs)
+        if self.role == self.ADMIN:
+            save_user = User.objects.get(username=self.username)
+            permission = Permission.objects.get(codename="add_user")
+            save_user.user_permissions.add(permission)
 
     class Meta:
         verbose_name = "Пользователь"
