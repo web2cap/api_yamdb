@@ -63,8 +63,10 @@ class User(AbstractUser):
         super(User, self).save(*args, **kwargs)
         if self.role == self.ADMIN:
             save_user = User.objects.get(username=self.username)
-            permission = Permission.objects.get(codename="add_user")
-            save_user.user_permissions.add(permission)
+            needet_permission = ("add_user", "change_user")
+            for permission_code in needet_permission:
+                permission = Permission.objects.get(codename=permission_code)
+                save_user.user_permissions.add(permission)
 
     def __str__(self):
         return self.username
