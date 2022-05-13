@@ -30,7 +30,6 @@ class Genre(models.Model):
         verbose_name="Адрес жанра",
         help_text="Уникальный адрес жанра, часть URL (например, для жанра "
         "фантастики slug может быть fantastic).",
-        max_length=50,
         unique=True,
     )
 
@@ -56,7 +55,6 @@ class Category(models.Model):
         verbose_name="Адрес категории",
         help_text="Уникальный адрес категории, часть URL (например, для "
         "категории фильмы slug может быть films).",
-        max_length=50,
         unique=True,
     )
 
@@ -140,7 +138,7 @@ class Review(CreatedModel):
         related_name="reviews",
         on_delete=models.CASCADE,
     )
-    score = models.IntegerField(
+    score = models.PositiveSmallIntegerField(
         verbose_name="Оценка",
         help_text="Оценка произведения от 1 до 10",
         choices=SCORE_CHOICES,

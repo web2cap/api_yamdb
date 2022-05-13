@@ -40,6 +40,11 @@ class User(AbstractUser):
         "Код подтверждения", max_length=64, default=get_secret_key
     )
 
+    class Meta:
+        verbose_name = "Пользователь"
+        verbose_name_plural = "Пользователи"
+        ordering = ["role", "username"]
+
     @property
     def is_admin(self):
         return self.role == self.ADMIN
@@ -60,11 +65,6 @@ class User(AbstractUser):
             save_user = User.objects.get(username=self.username)
             permission = Permission.objects.get(codename="add_user")
             save_user.user_permissions.add(permission)
-
-    class Meta:
-        verbose_name = "Пользователь"
-        verbose_name_plural = "Пользователи"
-        ordering = ["role", "username"]
 
     def __str__(self):
         return self.username
