@@ -128,5 +128,6 @@ The development team of the 32 Yandex.Practicum categories:
 * Sudoplatova Marina
 
 
-About the development process:
+### About the development process:
+
 The project was developed in a team, using the agile methodology. We used Trello as a task tracker. I was a team leader, responsible for the development process, team morale, developed the authorization section and the Users application. All project developers conducted code reviews.
